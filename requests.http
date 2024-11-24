@@ -11,6 +11,52 @@ POST http://localhost:3000/charge
 Content-Type: application/json
 
 {
-    "account": "test",
-    "charges": 15 
+  "account": "test",
+  "charges": 85
 }
+
+> {%
+  client.test("Charge response should be authorized", function() {
+    client.assert(response.body.isAuthorized === true, "isAuthorized should be true");
+    client.assert(response.body.remainingBalance === 15, "remainingBalance should be 15");
+    client.assert(response.body.charges === 85, "charges should be 85");
+  });
+%}
+
+###
+# @name Charge1
+# @parallel
+POST http://localhost:3000/charge
+Content-Type: application/json
+
+{
+  "account": "test",
+  "charges": 15
+}
+
+> {%
+  client.test("Charge1 response should be authorized", function() {
+    client.assert(response.body.isAuthorized === true, "isAuthorized should be true");
+    client.assert(response.body.remainingBalance === 0, "remainingBalance should be 0");
+    client.assert(response.body.charges === 15, "charges should be 15");
+  });
+%}
+
+###
+# @name Charge2
+# @parallel
+POST http://localhost:3000/charge
+Content-Type: application/json
+
+{
+  "account": "test",
+  "charges": 15
+}
+
+> {%
+  client.test("Charge2 response should not be authorized", function() {
+    client.assert(response.body.isAuthorized === false, "isAuthorized should be false");
+    client.assert(response.body.remainingBalance === 0, "remainingBalance should be 0");
+    client.assert(response.body.charges === 0, "charges should be 0");
+  });
+%}
